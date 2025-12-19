@@ -5,6 +5,21 @@ ENV PYTHONDONTWRITEBYTECODE 1
 EXPOSE 4200
 
 WORKDIR /app
+
+COPY .rclone.conf /root/.config/rclone/rclone.conf
+WORKDIR /app
+
+# Install rclone
+RUN apt-get update && apt-get install -y supervisor curl unzip man-db && \
+curl -O https://downloads.rclone.org/v1.70.2/rclone-v1.70.2-linux-amd64.zip && \
+unzip rclone-v1.70.2-linux-amd64.zip && \
+cp rclone-v1.70.2-linux-amd64/rclone /usr/bin/ && \
+chown root:root /usr/bin/rclone && \
+chmod 755 /usr/bin/rclone && \
+mkdir -p /usr/local/share/man/man1 && \
+cp rclone-v1.70.2-linux-amd64/rclone.1 /usr/local/share/man/man1/ && \
+mandb
+
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 COPY pyproject.toml .

@@ -181,3 +181,5 @@ cython_debug/
 /db
 # Ignore dynaconf secret files
 scripts/configuration/.secrets.toml
+
+.rclone.conf
