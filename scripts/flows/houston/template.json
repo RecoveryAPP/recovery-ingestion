@@ -1,0 +1,119 @@
+{
+  "persistentUrl": "",
+  "datasetVersion": {
+    "termsOfUse": "",
+    "license": {
+      "name": "CC BY 4.0",
+      "uri": "http://creativecommons.org/licenses/by/4.0"
+    },
+    "metadataBlocks": {
+      "citation": {
+        "fields": [
+          {
+            "typeName": "title",
+            "typeClass": "primitive",
+            "multiple": false,
+            "value": ""
+          },
+          {
+            "typeName": "author",
+            "multiple": true,
+            "typeClass": "compound",
+            "value": [
+              {
+                "authorName": {
+                  "typeName": "authorName",
+                  "multiple": false,
+                  "typeClass": "primitive",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "typeName": "datasetContact",
+            "multiple": true,
+            "typeClass": "compound",
+            "value": [
+              {
+                "datasetContactEmail": {
+                  "typeName": "datasetContactEmail",
+                  "multiple": false,
+                  "typeClass": "primitive",
+                  "value": "info@uh.edu"
+                }
+              }
+            ]
+          },
+          {
+            "typeName": "dsDescription",
+            "multiple": true,
+            "typeClass": "compound",
+            "value": [
+              {
+                "dsDescriptionValue": {
+                  "typeName": "dsDescriptionValue",
+                  "multiple": false,
+                  "typeClass": "primitive",
+                  "value": ""
+                }
+              }
+            ]
+          },
+          {
+            "typeName": "subject",
+            "typeClass": "controlledVocabulary",
+            "multiple": true,
+            "value": [
+              "Social Sciences"
+            ]
+          }
+        ]
+      },
+      "UHspanishMetadata": {
+        "fields": [
+          {
+            "typeName": "issueTitle",
+            "multiple": false,
+            "typeClass": "primitive",
+            "value": ""
+          },
+          {
+            "typeName": "newspaperTitle",
+            "multiple": false,
+            "typeClass": "primitive",
+            "value": ""
+          },
+          {
+            "typeName": "publicationType",
+            "multiple": false,
+            "typeClass": "primitive",
+            "value": ""
+          },
+          {
+            "typeName": "locSubjectHeadings",
+            "multiple": true,
+            "typeClass": "primitive",
+            "value": []
+          }
+        ]
+      },
+      "UHtags": {
+        "fields": [
+          {
+            "typeName": "tags",
+            "multiple": true,
+            "typeClass": "primitive",
+            "value": []
+          },
+          {
+            "typeName": "tagsSpan",
+            "multiple": true,
+            "typeClass": "primitive",
+            "value": []
+          }
+        ]
+      }
+    }
+  }
+}

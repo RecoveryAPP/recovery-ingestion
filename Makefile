@@ -6,6 +6,13 @@ PROJECT_SRV = ${PROJECT_NAME}
 TARGET_URL ?=
 TARGET_KEY ?=
 DO_HARVEST ?= True
+DV_API_KEY ?=
+DT_ALIAS ?=
+S3_ACCESS_KEY ?=
+S3_SECRET_KEY ?=
+S3_ENDPOINT ?=
+S3_BUCKET ?=
+
 
 .PHONY = help
 .DEFAULT:
@@ -63,4 +70,4 @@ submodules: ## Sets up the submodules and checks out their main branch.
 ingest: ## Runs the ingest workflow for a specified data provider. The url and key of the target can be optionally added. eg: make ingest data_provider=CBS TARGET_URL=https://portal.example.odissei.nl TARGET_KEY=abcde123-11aa-22bb-3c4d-098765432abc
 	@docker exec -it ${PROJECT_CONTAINER_NAME} python run_ingestion.py --data_provider=$(data_provider) --target_url=$(TARGET_URL) --target_key=$(TARGET_KEY) --do_harvest=$(DO_HARVEST)
 deploy: ## Deploys all ingestion workflows to the prefect server.
-	@docker exec -it prefect python deployment/deploy_ingestion_pipelines.py
+	@docker exec -it prefect python flows/houston/read_excel.py --api_key $(DV_API_KEY) --dt_alias $(DT_ALIAS) --s3_access_key $(S3_ACCESS_KEY) --s3_secret_key $(S3_SECRET_KEY) --s3_endpoint $(S3_ENDPOINT) --s3_bucket $(S3_BUCKET)

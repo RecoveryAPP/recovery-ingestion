@@ -1,0 +1,14 @@
+{
+    "authorName": ["creator", "issue_title"],
+    "dsDescriptionValue": ["description_spanish", "description"],
+    "title": ["title_spanish", "title"],
+    "keywordValue": ["keywords"],
+    "language": ["language"],
+    "productionDate": ["production_date"],
+    "productionPlace": ["production_place"],
+    "newspaperTitle": ["title_spanish", "title"],
+    "issueTitle": ["issue_title_spanish", "issue_title"],
+    "publicationType": ["publicationtype_spanish", "publicationtype"],
+    "tagsSpan": ["tags_spanish"],
+    "tags": ["tags"]
+}
