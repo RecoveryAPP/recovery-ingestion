@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set
 
 import boto3
+import utils
 import requests
 from prefect import flow, task
 from prefect.logging import get_run_logger
@@ -238,6 +239,34 @@ def add_file(
     response.raise_for_status()
     return response
 
+@task
+def get_file_object(bucket_name: str, key: str) -> dict:
+    logger = get_run_logger()
+
+    minio_client = utils.create_s3_client()
+    try:
+        response = minio_client.get_object(
+            Bucket=bucket_name,
+            Key=key
+        )
+        content = response['Body'].read().decode('utf-8')
+        return json.loads(content)
+    except Exception as e:
+        logger.error(f"Error retrieving file from S3: {e}")
+        raise e
+    
+@task
+def get_all_keys(bucket_name: str) -> List[str]:
+    minio_client = utils.create_s3_client()
+
+    paginator = minio_client.get_paginator('list_objects_v2')
+    response_iterator = paginator.paginate(Bucket=bucket_name)
+    keys = []
+    for response in response_iterator:
+        if response.get('Contents'):
+            keys.extend(item['Key'] for item in response['Contents'])
+    return keys
+
 
 # ----------
 # Sub-flows
@@ -303,6 +332,10 @@ def ingest_to_dataverse(
     s3_secret_key: str,
     s3_endpoint: str,
     s3_bucket: str,
+    newspaper_data_key: str,
+    issue_data_key: str,
+    mappingjson_key: str,
+    templatejson_key: str,
 ) -> None:
     """
     Required parameters (show up in the Prefect UI deployment):
@@ -316,14 +349,27 @@ def ingest_to_dataverse(
     """
     logger = get_run_logger()
 
-    with open("mapping.json", "r", encoding="utf-8") as f:
-        mappingjson = json.load(f)
-    with open("template.json", "r", encoding="utf-8") as f:
-        templatejson = json.load(f)
-    with open("clir_issue.json", "r", encoding="utf-8") as f:
-        issue_data = json.load(f)
-    with open("clir_newspaper.json", "r", encoding="utf-8") as f:
-        newspaper_orig_data = json.load(f)
+
+
+    mappingjson = get_file_object(
+        bucket_name=s3_bucket,
+        key=mappingjson_key
+    )
+
+    templatejson = get_file_object(
+        bucket_name=s3_bucket,
+        key=templatejson_key
+    )
+
+    issue_data = get_file_object(
+        bucket_name=s3_bucket,
+        key=issue_data_key
+    )
+
+    newspaper_orig_data = get_file_object(
+        bucket_name=s3_bucket,
+        key=newspaper_data_key
+    )
 
     newspaper_data = transform_newspaper_level_fn(newspaper_orig_data=newspaper_orig_data)
 
@@ -335,6 +381,7 @@ def ingest_to_dataverse(
 
     logger.info(f"Loaded {len(issue_data)} issue items; {len(newspaper_data)} newspaper records")
     logger.info({"s3_endpoint": s3_endpoint, "s3_bucket": s3_bucket})
+
 
     for item in issue_data:
         process_item(
@@ -359,11 +406,17 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--api_key", required=True, help="Dataverse API token")
     p.add_argument("--dt_alias", required=True, help="Dataverse alias")
     p.add_argument("--endpoint_url", required=False, default="", help="Dataverse base URL (optional; can be set in UI)")
+    # S3 data
     p.add_argument("--s3_access_key", required=True, help="S3/MinIO access key")
     p.add_argument("--s3_secret_key", required=True, help="S3/MinIO secret key")
     p.add_argument("--s3_endpoint", required=True, help="S3/MinIO endpoint URL")
     p.add_argument("--s3_bucket", required=True, help="S3 bucket name")
-
+    # Mappinng keys
+    p.add_argument("--newspaper_data_key", required=True, help="S3 key for newspaper-level data JSON")
+    p.add_argument("--issue_data_key", required=True, help="S3 key for issue data JSON")
+    p.add_argument("--mappingjson_key", required=True, help="S3 key for mapping JSON")
+    p.add_argument("--templatejson_key", required=True, help="S3 key for template JSON")
+    # Prefect stuff
     p.add_argument("--deployment-name", default="ingest-to-dataverse", help="Prefect deployment name")
     p.add_argument("--work-pool", default="local", help="Work pool name for the deployment")
     return p.parse_args()
@@ -387,5 +440,9 @@ if __name__ == "__main__":
             "s3_secret_key": args.s3_secret_key,
             "s3_endpoint": args.s3_endpoint,
             "s3_bucket": args.s3_bucket,
+            "newspaper_data_key": args.newspaper_data_key,
+            "issue_data_key": args.issue_data_key,
+            "mappingjson_key": args.mappingjson_key,
+            "templatejson_key": args.templatejson_key,
         },
     )
